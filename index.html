@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IAM Joiner-Mover-Leaver</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, select, button { margin: 5px; }
+    pre { background: #f4f4f4; padding: 10px; }
+    h2 { margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <h1>IAM Joiner-Mover-Leaver Automation</h1>
+
+  <!-- ===== Joiner ===== -->
+  <h2>Add User (Joiner)</h2>
+  <input id="name" placeholder="Name">
+  <input id="department" placeholder="Department (IT/HR)">
+  <input id="location" placeholder="Location">
+  <input id="manager" placeholder="Manager (Manager_IT/Manager_HR)">
+  <button onclick="joinUser()">Add User</button>
+
+  <!-- ===== Approve ===== -->
+  <h2>Approve User</h2>
+  <input id="approveId" placeholder="User ID">
+  <select id="approverSelect">
+    <option value="Manager_IT">Manager_IT</option>
+    <option value="Manager_HR">Manager_HR</option>
+  </select>
+  <label>
+    <input type="checkbox" id="forceFail"> Force Failure
+  </label>
+  <button onclick="approveUser()">Approve</button>
+
+  <!-- ===== Retry ===== -->
+  <h2>Retry Provisioning</h2>
+  <input id="retryId" placeholder="User ID">
+  <select id="retryApprover">
+    <option value="Manager_IT">Manager_IT</option>
+    <option value="Manager_HR">Manager_HR</option>
+  </select>
+  <button onclick="retryUser()">Retry</button>
+
+  <!-- ===== Mover ===== -->
+  <h2>Move User</h2>
+  <input id="moveId" placeholder="User ID">
+  <input id="newDept" placeholder="New Department">
+  <input id="newLocation" placeholder="New Location">
+  <select id="moveApprover">
+    <option value="Manager_IT">Manager_IT</option>
+    <option value="Manager_HR">Manager_HR</option>
+  </select>
+  <button onclick="moveUser()">Move User</button>
+
+  <!-- ===== Leaver ===== -->
+  <h2>De-provision User (Leaver)</h2>
+  <input id="leaveId" placeholder="User ID">
+  <select id="leaveApprover">
+    <option value="Manager_IT">Manager_IT</option>
+    <option value="Manager_HR">Manager_HR</option>
+  </select>
+  <button onclick="leaveUser()">De-provision</button>
+
+  <!-- ===== Users List ===== -->
+  <h2>All Users</h2>
+  <button onclick="showUsers()">Show Users</button>
+  <pre id="users"></pre>
+
+  <!-- ===== Audit Logs ===== -->
+  <h2>Audit Logs</h2>
+  <button onclick="showAudit()">Show Audit Logs</button>
+  <pre id="audit"></pre>
+
+  <script>
+    // ===== Joiner =====
+    function joinUser() {
+      fetch("/join", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          name: document.getElementById("name").value,
+          department: document.getElementById("department").value,
+          location: document.getElementById("location").value,
+        })
+      })
+      .then(res => res.json())
+      .then(showUsers);
+    }
+
+    // ===== Approve =====
+    function approveUser() {
+      fetch("/approve", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          id: Number(document.getElementById("approveId").value),
+          forceFail: document.getElementById("forceFail").checked,
+          approver: document.getElementById("approverSelect").value
+        })
+      })
+      .then(res => res.json())
+      .then(showUsers);
+    }
+
+    // ===== Retry =====
+    function retryUser() {
+      fetch("/retry", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          id: Number(document.getElementById("retryId").value),
+          approver: document.getElementById("retryApprover").value
+        })
+      })
+      .then(res => res.json())
+      .then(showUsers);
+    }
+
+    // ===== Move =====
+    function moveUser() {
+      fetch("/move", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          id: Number(document.getElementById("moveId").value),
+          newDept: document.getElementById("newDept").value,
+          newLocation: document.getElementById("newLocation").value,
+          approver: document.getElementById("moveApprover").value
+        })
+      })
+      .then(res => res.json())
+      .then(showUsers);
+    }
+
+    // ===== Leave =====
+    function leaveUser() {
+      fetch("/leave", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          id: Number(document.getElementById("leaveId").value),
+          approver: document.getElementById("leaveApprover").value
+        })
+      })
+      .then(res => res.json())
+      .then(showUsers);
+    }
+
+    // ===== Show Users =====
+    function showUsers() {
+      fetch("/users")
+        .then(res => res.json())
+        .then(data => document.getElementById("users").innerText = JSON.stringify(data, null, 2));
+    }
+
+    // ===== Show Audit Logs =====
+    function showAudit() {
+      fetch("/audit")
+        .then(res => res.json())
+        .then(data => document.getElementById("audit").innerText = JSON.stringify(data, null, 2));
+    }
+  </script>
+</body>
+</html>
