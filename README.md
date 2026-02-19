@@ -6,6 +6,7 @@ A Node.js + SQLite based Identity & Access Management (IAM) workflow system that
 - User onboarding (Joiner)
 - Role change workflow (Mover)
 - Employee offboarding (Leaver)
+- Failed and Retry provisioning 
 - Audit logging
 - SQLite database integration
 
